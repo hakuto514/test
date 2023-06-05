@@ -12,5 +12,50 @@
 
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
   <script src="script.js"></script>
+  <script>// 画像フォームの送信処理
+function submitForm() {
+  const fileInput = document.getElementById('imageInput');
+  const file = fileInput.files[0];
+
+  if (file) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://script.google.com/home/projects/16NzLI_oe35lWzeEZP3Stc5oHk8Of7HWitYNfWQaT1aovPbzgCx4GFn42/edit');
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        const imageUrlDrive = response.imageUrlDrive;
+
+        if (imageUrlDrive) {
+          // LINEへのメッセージ送信
+          const textMessage = {
+            type: 'text',
+            text: '画像を受け取りました📷\n\n以下のURLをコピーしてフォームの画像URL欄に貼り付けてください。',
+          };
+
+          const urlMessage = {
+            type: 'text',
+            text: imageUrlDrive,
+          };
+
+          liff.sendMessages([textMessage, urlMessage])
+            .then(function() {
+              liff.closeWindow();
+            })
+            .catch(function(error) {
+              console.error(error);
+            });
+        }
+      } else {
+        console.error('Failed to upload image.');
+      }
+    };
+
+    xhr.send(formData);
+  }
+}
+</script>
 </body>
 </html>
